@@ -72,8 +72,23 @@ provider "kubernetes" {
 
 provider "helm" {
   kubernetes {
-  host                   = digitalocean_kubernetes_cluster.doks.kube_config[0].host
-  token                  = digitalocean_kubernetes_cluster.doks.kube_config[0].token
-  cluster_ca_certificate = base64decode(digitalocean_kubernetes_cluster.doks.kube_config[0].cluster_ca_certificate)
+    host                   = digitalocean_kubernetes_cluster.doks.kube_config[0].host
+    token                  = digitalocean_kubernetes_cluster.doks.kube_config[0].token
+    cluster_ca_certificate = base64decode(digitalocean_kubernetes_cluster.doks.kube_config[0].cluster_ca_certificate)
   }
+}
+
+resource "helm_release" "falco" {
+  name       = "falco"
+  repository = "https://falcosecurity.github.io/charts"
+  chart      = "falco"
+  version    = "1.16.2"
+
+  namespace        = "falco"
+  create_namespace = true
+
+  # set {
+  #   name  = "fakeEventGenerator.enabled"
+  #   value = "true"
+  # }
 }
