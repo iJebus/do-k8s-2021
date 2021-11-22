@@ -11,6 +11,14 @@ terraform {
       source  = "digitalocean/digitalocean"
       version = "~> 2.16.0"
     }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.4.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.6.0"
+    }
   }
 }
 
@@ -54,4 +62,16 @@ resource "digitalocean_kubernetes_cluster" "doks" {
     min_nodes  = 1
     max_nodes  = 3 # this is the maximum allowed nodes on my new account without requesting an increase
   }
+}
+
+provider "kubernetes" {
+  host                   = digitalocean_kubernetes_cluster.doks.kube_config[0].host
+  token                  = digitalocean_kubernetes_cluster.doks.kube_config[0].token
+  cluster_ca_certificate = base64decode(digitalocean_kubernetes_cluster.doks.kube_config[0].cluster_ca_certificate)
+}
+
+provider "helm" {
+  host                   = digitalocean_kubernetes_cluster.doks.kube_config[0].host
+  token                  = digitalocean_kubernetes_cluster.doks.kube_config[0].token
+  cluster_ca_certificate = base64decode(digitalocean_kubernetes_cluster.doks.kube_config[0].cluster_ca_certificate)
 }
